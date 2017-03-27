@@ -5,7 +5,7 @@ use Mojo::Base 'Mojolicious';
 sub startup {
   my $self = shift;
 
-  $ENV{"MOJO_MAX_MESSAGE_SIZE"} = $self->config('max_filesize');
+  $ENV{"MOJO_MAX_MESSAGE_SIZE"} = $self->plugin('Config')->{'max_filesize'};
 #  $ENV{"MOJO_MAX_MESSAGE_SIZE"} = 3221225472;
 
   $self->config(hypnotoad => {
