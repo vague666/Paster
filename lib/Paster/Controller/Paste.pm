@@ -3,10 +3,11 @@ use Mojo::Base 'Mojolicious::Controller';
 
 sub paste {
   my $self = shift;
+  my $config = $self->app->plugin('Config');
 
   my $get_paths = sub {
     my ($filename) = @_;
-    my $basepath = '/home/www/web/public/pastes';
+    my $host_path = $config->{'host_path'} // "/tmp";
     unless($filename) {
       my @chars = split '', 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
       do {
@@ -15,10 +16,10 @@ sub paste {
           my $r = int(rand(@chars));
           $filename .= $chars[$r];
         }
-      } while -e "$basepath/$filename";
+      } while -e "$host_path/$filename";
     }
-    my $host_url = $self->app->plugin('Config')->{'host_url'} // "https://localhost/";
-    ("$basepath/$filename", "$host_url/$filename");
+    my $host_url = $config->{'host_url'} // "https://localhost/";
+    ("$host_path/$filename", "$host_url/$filename");
   };
 
   my $files = $self->req->every_upload('file');
