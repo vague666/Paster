@@ -1,0 +1,12 @@
+<html>
+  <head>
+    <title><%= title %></title>
+    <style>
+      textarea.big {
+        width: 100%;
+        height: 90%;
+      }
+    </style>
+  </head>
+  <body><%= content %></body>
+</html>

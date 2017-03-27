@@ -1,0 +1,13 @@
+[Unit]
+Description=pastebin service
+After=network.target
+ 
+[Service]
+Type=forking
+PIDFile=/home/www/paster/script/hypnotoad.pid
+ExecStart=/opt/perlbrew/perls/5.24.0/bin/hypnotoad /home/www/paster/script/paster
+ExecReload=/opt/perlbrew/perls/5.24.0/bin/hypnotoad /home/www/paster/script/paster
+KillMode=process
+ 
+[Install]
+WantedBy=multi-user.target
