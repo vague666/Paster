@@ -8,11 +8,19 @@ sub paste {
   my $get_paths = sub {
     my ($filename) = @_;
     my $host_path = $config->{'host_path'} // "/tmp";
+
     unless($filename) {
       my @chars = split '', 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      my $i = 0;
+      my $namelength = 4;
       do {
+        $i++;
+        if($i >= ($config->{max_iter} // 100)) {
+          $namelength += 1;
+          $i = 0;
+        }
         $filename = '';
-        for(1..4) {
+        for(1 .. $namelength) {
           my $r = int(rand(@chars));
           $filename .= $chars[$r];
         }
