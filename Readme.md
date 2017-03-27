@@ -1,4 +1,4 @@
-Pastebin service written with Mojolicious
+## Pastebin service written with Mojolicious
 
 Works like [sprunge](http://sprunge.us) with the addition of a form for pasting text or files
 
