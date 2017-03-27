@@ -4,16 +4,20 @@ use Mojo::Base 'Mojolicious';
 # This method will run once at server start
 sub startup {
   my $self = shift;
+  my $config = $self->plugin('Config');
 
-  $ENV{"MOJO_MAX_MESSAGE_SIZE"} = $self->plugin('Config')->{'max_filesize'};
-#  $ENV{"MOJO_MAX_MESSAGE_SIZE"} = 3221225472;
+  $ENV{"MOJO_MAX_MESSAGE_SIZE"} = $config->{'max_filesize'} // 322122547;  # 300MB
 
   $self->config(hypnotoad => {
     listen => ['http://*:8080'],
     workers => 1
   });
-  $self->plugin(SetUserGroup => {user => 'www', group => 'www'});
-  $self->plugin(AccessLog => { log => 'log/access.log', format => 'combined' });
+
+  my ($user, $group) = split ':', $config->{'run_as'};
+  die "Add run_as => 'user:group' in paster.conf, where user and group are existing values on your system" unless $user && $group;
+
+  $self->plugin(SetUserGroup => {user => $user, group => $group});
+  $self->plugin(AccessLog => { log => 'log/access.log', format => 'combined' }) if $config->{'enable_logging'};
   $self->plugin('TagHelpers');
 
   # Router
