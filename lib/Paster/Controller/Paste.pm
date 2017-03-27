@@ -1,6 +1,5 @@
 package Paster::Controller::Paste;
 use Mojo::Base 'Mojolicious::Controller';
-use Data::Dumper;
 
 sub paste {
   my $self = shift;
@@ -22,8 +21,6 @@ sub paste {
     ("$basepath/$filename", "$host_url/$filename");
   };
 
-  $self->app->log->info("max message size: " . $self->req->max_message_size);
-
   my $files = $self->req->every_upload('file');
   if($files->[0] && length $files->[0]->filename > 0) {
     my @output;
@@ -31,7 +28,7 @@ sub paste {
       my ($fs, $url) = $get_paths->($ufile->filename);
       $ufile->move_to($fs);
       push @output, $url;
-      $self->app->log->info("Writing paste as $fs, weblink is $url");
+      $self->app->log->info("Wrote paste as $fs, weblink is $url");
     }
 
     $self->render(text => join("<br>", @output));
