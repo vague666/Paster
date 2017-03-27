@@ -6,6 +6,14 @@ Pipe data to paste:
 ```
 $> cat some.file | curl -F 'paste=<-' http://localhost:8080/paste
 ```
+You can also use the shell script to paste content
+```
+$> cat some.file | paster
+```
+or to upload a file
+```
+$> paster path/to/some.file
+```
 
 Paste text or files:
 ```
