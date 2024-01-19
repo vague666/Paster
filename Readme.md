@@ -2,6 +2,7 @@
 
 Prerequisites: perl 5.24+
                Mojolicious
+               Pandoc
                'Authorization: Token FOOBAR' header field for curl, where FOOBAR is the secret you
                defined in paster.conf
 
