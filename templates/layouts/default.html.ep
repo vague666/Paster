@@ -1,6 +1,9 @@
 <html>
   <head>
     <title><%= title %></title>
+    % if(my $url = stash 'url') {
+    <meta http-equiv="refresh" content="5; url=<%= $url %>">
+    % }
     <style>
       textarea.big {
         width: 100%;

@@ -2,6 +2,7 @@
 % title 'Paster';
 
 %= form_for paste => (enctype => 'multipart/form-data') => (method => 'POST') => begin
+  %= hidden_field token => $token
   %= text_area 'paste' => (class => 'big')
   %= file_field 'file' => (multiple => 1)
   <br />
