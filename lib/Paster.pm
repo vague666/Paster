@@ -58,7 +58,6 @@ sub startup ($self) {
     if($file) {
       my $types = File::Type->new;
       my $ctype = $types->mime_type($file->path);
-$c->app->log->debug($ctype);
       if($ctype =~ m,(application/octet-stream|text/perl),) {
         $ctype = 'text/plain';
       }
