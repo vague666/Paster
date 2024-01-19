@@ -2,6 +2,8 @@
 
 Prerequisites: perl 5.24+
                Mojolicious
+               'Authorization: Token FOOBAR' header field for curl, where FOOBAR is the secret you
+               defined in paster.conf
 
 ## Examples
 
@@ -9,7 +11,7 @@ Works like [sprunge](http://sprunge.us) with the addition of a form for pasting 
 
 Pipe data to paste:
 ```
-$> cat some.file | curl -F 'paste=<-' http://localhost:8080/paste
+$> cat some.file | curl -H 'Authorization: Token FOOBAR' -F 'paste=<-' http://localhost:8080/paste
 ```
 You can also use the shell script to paste content
 ```
@@ -22,7 +24,7 @@ $> paster path/to/some.file
 
 Paste text or files:
 ```
-$> firefox http://localhost:8080/paste
+$> firefox http://localhost:8080/paste?token=FOOBAR
 ```
 Fill in the form and click Paste!
 
