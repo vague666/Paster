@@ -33,7 +33,7 @@ Fill in the form and click Paste!
 
 
 
-## Running
+## Installation
 
 1. Create the www user
 ```
