@@ -60,7 +60,8 @@ sub paste ($c) {
     }
 
     $c->app->log->info("Wrote paste as $fs, weblink is $url");
-    $c->render(text => $res // "$url\n");
+    $c->stash(url => $url);
+    $c->render('paste/output');
   }
 }
 
