@@ -1,39 +1,79 @@
 package Paster;
-use Mojo::Base 'Mojolicious';
+
+use Mojo::Base 'Mojolicious', -signatures;
+use Mojo::Log;
+use Mojolicious::Types;
+use File::Type;
+use Path::Tiny;
+
+sub _get_file ($path) {
+  no warnings 'newline';
+  return -f $path && -r _ ? Mojo::Asset::File->new(path => $path) : undef;
+}
 
 # This method will run once at server start
-sub startup {
-  my $self = shift;
+sub startup ($self) {
   my $config = $self->plugin('Config');
 
   $ENV{"MOJO_MAX_MESSAGE_SIZE"} = $config->{'max_filesize'} // 322122547;  # 300MB
 
   $self->config(hypnotoad => {
     listen => ['http://*:8080'],
-    workers => 1
+    workers => 4
   });
 
   my ($user, $group) = split ':', $config->{'run_as'};
   die "Add run_as => 'user:group' in paster.conf, where user and group are existing values on your system" unless $user && $group;
 
+  my $log = Mojo::Log->new(path => 'log/debug.log');
+  $self->log($log);
+
   $self->plugin(SetUserGroup => {user => $user, group => $group});
-  $self->plugin(AccessLog => { log => 'log/access.log', format => 'combined' }) if $config->{'enable_logging'};
+  $self->plugin(AccessLog => { log => 'log/access.log', format => 'combined', level => 'warn' }) if $config->{'enable_logging'};
+  $self->plugin('DefaultHelpers');
   $self->plugin('TagHelpers');
 
   # Router
   my $r = $self->routes;
 
-  sub fourofour {
-    my $self = shift;
-    $self->rendered(404);
-    $self->render(text => 'Not found!');
-  };
+  my $auth = $r->under('/paste' => sub ($c) {
+    my $token = $config->{secrets}->[0];
+    $c->stash(token => $token);
+
+    # Authenticated
+    return 1 if $c->req->headers->header('Authorization') eq "Token $token"
+             || $c->param('token') eq $token;
+
+    # Not authenticated
+    $c->render(text => "You're not authorized.", status => 401);
+    return undef;
+  });
+
+  $auth->post('/')->to('paste#paste');
+  $auth->get('/')->to('paste#form');
 
   # Normal route to controller
-  $r->get('/')->to(cb => \&fourofour);
-  $r->post('/paste')->to('paste#paste');
-  $r->get('/paste')->to('paste#form');
-  $r->get('*')->to(cb => \&fourofour);
+  $r->get('/*paste' => sub ($c) {
+    my $file = _get_file(path($config->{host_path}, $c->param('paste')));
+    if($file) {
+      my $types = File::Type->new;
+      my $ctype = $types->mime_type($file->path);
+$c->app->log->debug($ctype);
+      if($ctype =~ m,(application/octet-stream|text/perl),) {
+        $ctype = 'text/plain';
+      }
+
+      $c->res->headers->content_disposition('inline');
+      $c->res->headers->content_type($ctype);
+      $c->reply->file($file->path);
+    }
+    else {
+      $c->reply->txt_not_found;
+    }
+  });
+  $r->get('*' => sub ($c) {
+    $c->reply->txt_not_found;
+  });
 }
 
 1;
