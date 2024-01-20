@@ -1,0 +1,6 @@
+#!/bin/bash
+
+POPUP="xargs xmessage -center -buttons OK:0 -default OK"
+OUTPUT=`scrot -s '%F_%T_$wx$h_scrot.png' -e 'paster $f'`
+echo -n $OUTPUT | xsel -i
+echo "$OUTPUT" | $POPUP

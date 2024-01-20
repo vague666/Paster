@@ -1,8 +1,11 @@
 #!/bin/bash
 
-if [ -z $1 ]; then
-  curl -H 'Authorization: Token FOOBAR' -F 'paste=<-' http://localhost:8080/paste | pandoc -f html -t plain
+HOST="IP:8080"
+TOKEN="..."
+
+if [ -z "$1" ]; then
+  curl -H "Authorization: Token $TOKEN" -s -F 'paste=<-' https://$HOST/paste | pandoc -f html -t plain
 else
   f=${1##*/}
-  curl -H 'Authorization: Token FOOBAR' -F "file=@\"${1}\";filename=\"$f\"" http://localhost:8080/paste | pandoc -f html -t plain
+  curl -H "Authorization: Token $TOKEN" -s -F "file=@\"${1}\";filename=\"$f\"" https://$HOST/paste | pandoc -f html -t plain
 fi
