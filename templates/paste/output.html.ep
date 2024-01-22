@@ -1,4 +1,7 @@
 % layout 'default';
 % title 'Paster';
 
-<%= $url %>
+<%= $url %><br>
+<% for my $u (@$rest) { %>
+<%= $u %><br>
+<% } %>
