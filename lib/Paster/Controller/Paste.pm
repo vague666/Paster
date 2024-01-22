@@ -12,10 +12,11 @@ sub paste ($c) {
   my $get_paths = sub ($filename = undef) {
     my $host_path = $config->{'host_path'};
     my $host_url = $config->{'host_url'};
-    $filename = tempfile(TEMPLATE => 'XXXXX',
-                                DIR => $host_path) unless $filename;
+    my $fs;
+    $fs = tempfile(TEMPLATE => 'XXXXX',
+                   DIR => $host_path) unless $filename;
 
-    return (path($filename), Mojo::URL->new($host_url)->path($filename->basename));
+    return (path($fs // path($host_path, $filename)), Mojo::URL->new($host_url)->path($filename->basename));
   };
 
   my @output;
@@ -24,9 +25,8 @@ sub paste ($c) {
     my @paths;
 
     my ($fs, $url) = $get_paths->();
-    $c->app->log->debug("$url");
-
     $fs->spew($data) if $fs;
+
     push @output, $url;
   }
   else {
@@ -35,6 +35,7 @@ sub paste ($c) {
 
       my ($fs, $url) = $get_paths->(Mojo::File->new($ufile->filename));
       $ufile->move_to($fs);
+
       push @output, $url;
     }
   }
