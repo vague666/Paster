@@ -5,6 +5,7 @@ use Mojo::Log;
 use Mojolicious::Types;
 use File::Type;
 use Path::Tiny;
+use Data::Munge;
 
 sub _get_file ($path) {
   no warnings 'newline';
@@ -33,6 +34,8 @@ sub startup ($self) {
   $self->plugin('DefaultHelpers');
   $self->plugin('TagHelpers');
 
+  my $mime_re = list2re $config->{render_as_text}->@*;
+
   # Router
   my $r = $self->routes;
 
@@ -58,7 +61,8 @@ sub startup ($self) {
     if($file) {
       my $types = File::Type->new;
       my $ctype = $types->mime_type($file->path);
-      if($ctype =~ m,(application/octet-stream|text/perl),) {
+$c->app->log->debug($ctype);
+      if($ctype =~ m,$mime_re,i) {
         $ctype = 'text/plain';
       }
 
