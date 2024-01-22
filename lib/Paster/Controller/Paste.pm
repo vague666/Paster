@@ -10,10 +10,10 @@ sub paste ($c) {
   my $config = $c->app->plugin('Config');
 
   my $get_paths = sub ($filename = undef) {
-    my $host_path = $config->{'host_path'};
-    my $host_url = $config->{'host_url'};
+    my $host_path = $config->{host_path};
+    my $host_url = $config->{host_url};
     my $fs;
-    $fs = tempfile(TEMPLATE => 'XXXXX',
+    $fs = tempfile(TEMPLATE => $config->{tempfile_template},
                    DIR => $host_path) unless $filename;
 
     return (path($fs // path($host_path, $filename)), Mojo::URL->new($host_url)->path(($fs ? $fs : $filename)->basename));
