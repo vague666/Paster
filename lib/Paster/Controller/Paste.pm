@@ -16,7 +16,7 @@ sub paste ($c) {
     $fs = tempfile(TEMPLATE => 'XXXXX',
                    DIR => $host_path) unless $filename;
 
-    return (path($fs // path($host_path, $filename)), Mojo::URL->new($host_url)->path($filename->basename));
+    return (path($fs // path($host_path, $filename)), Mojo::URL->new($host_url)->path(($fs ? $fs : $filename)->basename));
   };
 
   my @output;
@@ -25,8 +25,9 @@ sub paste ($c) {
     my @paths;
 
     my ($fs, $url) = $get_paths->();
-    $fs->spew($data) if $fs;
+    $c->app->log->debug("$url");
 
+    $fs->spew($data) if $fs;
     push @output, $url;
   }
   else {
@@ -34,8 +35,9 @@ sub paste ($c) {
       next unless $ufile && length($ufile->filename);
 
       my ($fs, $url) = $get_paths->(Mojo::File->new($ufile->filename));
+      $c->app->log->debug($fs);
+      $c->app->log->debug($ufile->filename);
       $ufile->move_to($fs);
-
       push @output, $url;
     }
   }
