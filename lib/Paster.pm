@@ -6,6 +6,7 @@ use Mojolicious::Types;
 use File::Type;
 use Path::Tiny;
 use Data::Munge;
+use Data::Dumper;
 
 sub _get_file ($path) {
   no warnings 'newline';
@@ -16,6 +17,7 @@ sub _get_file ($path) {
 sub startup ($self) {
   my $config = $self->plugin('Config');
 
+  $self->app->secrets($config->{secrets});
   $ENV{"MOJO_MAX_MESSAGE_SIZE"} = $config->{'max_filesize'} // 322122547;  # 300MB
 
   $self->config(hypnotoad => {
