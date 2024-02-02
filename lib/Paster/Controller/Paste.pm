@@ -13,10 +13,12 @@ sub paste ($c) {
     my $host_path = $config->{host_path};
     my $host_url = $config->{host_url};
     my $fs;
-    $fs = tempfile(TEMPLATE => $config->{tempfile_template},
+
+    $fs = tempfile(TEMPLATE => $config->{paste_template},
                    DIR => $host_path) unless $filename;
 
-    return (path($fs // path($host_path, $filename)), Mojo::URL->new($host_url)->path(($fs ? $fs : $filename)->basename));
+    my $path = Mojo::URL->new(($fs ? $fs : $filename)->basename)->url_escape;
+    return (path($fs // path($host_path, $filename)), Mojo::URL->new($host_url)->path($path));
   };
 
   my @output;
@@ -34,9 +36,11 @@ sub paste ($c) {
     for my $ufile ($c->req->every_upload('file')->@*) {
       next unless $ufile && length($ufile->filename);
 
-      my ($fs, $url) = $get_paths->(Mojo::File->new($ufile->filename));
+      my $filename = $ufile->filename =~ s/\s/_/gr;
+
+      my ($fs, $url) = $get_paths->(Mojo::File->new($filename));
       $c->app->log->debug($fs);
-      $c->app->log->debug($ufile->filename);
+      $c->app->log->debug($filename);
       $ufile->move_to($fs);
       push @output, $url;
     }
