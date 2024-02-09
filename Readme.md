@@ -38,7 +38,7 @@ Fill in the form and click Paste!
 
 #### Paste files from Android with Termux:<br>
 
-Copy paster to Termux and create a symlink called termux-file-editor pointing to paster
+Copy paster to ~/bin/ in Termux and create a symlink called termux-file-editor pointing to paster
 ```
 ln -s paster termux-file-editor
 ```
