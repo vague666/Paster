@@ -17,7 +17,8 @@ sub paste ($c) {
     $fs = tempfile(TEMPLATE => $config->{paste_template},
                    DIR => $host_path) unless $filename;
 
-    my $path = Mojo::URL->new(($fs ? $fs : $filename)->basename)->url_escape;
+    #my $path = Mojo::URL->new(($fs ? $fs : $filename)->basename)->url_escape;
+    my $path = Mojo::URL->new(($fs ? $fs : $filename)->basename);
     return (path($fs // path($host_path, $filename)), Mojo::URL->new($host_url)->path($path));
   };
 
@@ -29,7 +30,7 @@ sub paste ($c) {
     my ($fs, $url) = $get_paths->();
     $c->app->log->debug("$url");
 
-    $fs->spew($data) if $fs;
+    $fs->spew($data, 'UTF-8') if $fs;
     push @output, $url;
   }
   else {

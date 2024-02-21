@@ -2,15 +2,15 @@ package Paster;
 
 use Mojo::Base 'Mojolicious', -signatures;
 use Mojo::Log;
+use Mojo::Util 'url_unescape';
 use Mojolicious::Types;
 use File::Type;
 use Path::Tiny;
 use Data::Munge;
-use Data::Dumper;
 
 sub _get_file ($path) {
   no warnings 'newline';
-  return -f $path && -r _ ? Mojo::Asset::File->new(path => $path) : undef;
+  return -f $path && -r _ ? Mojo::Asset::File->new(path => url_unescape $path) : undef;
 }
 
 # This method will run once at server start
@@ -19,11 +19,6 @@ sub startup ($self) {
 
   $self->app->secrets($config->{secrets});
   $ENV{"MOJO_MAX_MESSAGE_SIZE"} = $config->{'max_filesize'} // 322122547;  # 300MB
-
-  $self->config(hypnotoad => {
-    listen => ['http://*:8080'],
-    workers => 4
-  });
 
   my ($user, $group) = split ':', $config->{'run_as'};
   die "Add run_as => 'user:group' in paster.conf, where user and group are existing values on your system" unless $user && $group;
@@ -45,7 +40,7 @@ sub startup ($self) {
     my $token = $config->{secrets}->[0];
     $c->stash(token => $token);
 
-    # Authenticated
+    # Authenticated?
     return 1 if $c->req->headers->header('Authorization') eq "Token $token"
              || $c->param('token') eq $token;
 
@@ -75,7 +70,7 @@ sub startup ($self) {
       $c->reply->txt_not_found;
     }
   });
-  $r->get('*' => sub ($c) {
+  $r->get('/' => sub ($c) {
     $c->reply->txt_not_found;
   });
 }
